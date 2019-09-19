@@ -1,4 +1,5 @@
 use volatile::Volatile;
+use core::fmt;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -90,8 +91,16 @@ impl Writer {
     }
 }
 
+impl fmt::Write for Writer {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
+    }
+}
+
 const VGA_BUFFER_ADDRESS: u32 = 0xb8000;
 pub fn test_print() {
+    use core::fmt::Write; // brings write_fmt for the Writer in order for "write!" to work
     let mut writer = Writer {
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
@@ -101,4 +110,5 @@ pub fn test_print() {
     writer.write_byte(b'H');
     writer.write_string("ello ");
     writer.write_string("Wörld!");
+    write!(writer, "Hello: {} and {}", 1, 1.0/4.0).unwrap();
 }
